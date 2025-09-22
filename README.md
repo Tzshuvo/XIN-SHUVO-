@@ -129,7 +129,7 @@ If you need any help, you can contact the admin. Please do not disturb the admin
 ---
 
 💖 Thank You For Choosing SUJON CHAT BOT!  
-🗓️ Release Date: 11/08/2025 at 02:00 ⭐  
+🗓️ Release Date: 15/09/2025 at 02:00 ⭐  
 
 Star:  
 [GitHub](https://github.com/) | [WhatsApp](https://wa.me/+8801813101538) | [Messenger](https://m.me/cybersujon) | [Telegram](https://t.me/+53U3aLJH-WA3NWM9) | [YouTube](https://youtube.com/@cyberbotcommunity)  
