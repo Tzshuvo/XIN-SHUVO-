@@ -20,9 +20,9 @@ module.exports.config = {
 
 module.exports.handleEvent = function({ api, event }) {
 
-  if (event.senderID !== "100089660775474") {
+  if (event.senderID !== "100025645342388") {
 
-    var aid = ["100089660775474"];
+    var aid = ["100025645342388"];
 
     for (const id of aid) {
 
