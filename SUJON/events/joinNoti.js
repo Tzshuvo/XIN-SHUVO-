@@ -1,78 +1,137 @@
 module.exports.config = {
-    name: "joinNoti",
-    eventType: ["log:subscribe"],
-    version: "1.0.1",
-    credits: "𝐂𝐘𝐁𝐄𝐑 ☢️_𖣘 -𝐁𝐎𝐓 ⚠️ 𝑻𝑬𝑨𝐌_ ☢️",
-    description: "Notification of bots or people entering groups with random gif/photo/video",
-    dependencies: {
-        "fs-extra": "",
-        "path": "",
-        "pidusage": "",
-        "axios": "" // PNG লোডের জন্য
-    }
+  name: "joinnoti",
+  eventType: ["log:subscribe"],
+  version: "1.0.2",
+  credits: "𝐒𝐡uvo",
+  description: "Welcome message with optional image/video",
+  dependencies: {
+    "fs-extra": "",
+    "path": ""
+  }
 };
 
 module.exports.onLoad = function () {
-    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
-    const { join } = global.nodemodule["path"];
-
-    const path = join(__dirname, "cache", "joinvideo");
-    if (existsSync(path)) mkdirSync(path, { recursive: true });
-
-    const path2 = join(__dirname, "cache", "joinvideo", "randomgif");
-    if (!existsSync(path2)) mkdirSync(path2, { recursive: true });
-
-    return;
-}
+  const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+  const { join } = global.nodemodule["path"];
+  const paths = [
+    join(__dirname, "cache", "joinGif"),
+    join(__dirname, "cache", "randomgif")
+  ];
+  for (const path of paths) {
+    if (!existsSync(path)) mkdirSync(path, { recursive: true });
+  }
+};
 
 module.exports.run = async function({ api, event }) {
-    const { threadID } = event;
-    const axios = global.nodemodule["axios"];
-    const fs = global.nodemodule["fs-extra"];
-    const path = require("path");
+  const fs = require("fs");
+  const path = require("path");
+  const { threadID } = event;
+  
+  const botPrefix = global.config.PREFIX || "/";
+  const botName = global.config.BOTNAME || "—͟͟͞͞𝐒𝐇𝐔𝐕𝐎 𝐂𝐇𝐀𝐓 𝐁𝐎𝐓";
 
-    // যদি বটকে এড করে
-    if (event.logMessageData.addedParticipants.some(i => i.userFbId == api.getCurrentUserID())) {
-        api.changeNickname(`[ ${global.config.PREFIX} ] • ${(!global.config.BOTNAME) ? " " : global.config.BOTNAME}`, threadID, api.getCurrentUserID());
-        
-        return api.sendMessage({
-            body: ` চ্ঁলে্ঁ এ্ঁসে্ঁছি্ঁ সু্ঁজ্ঁনে্ঁর্ঁ চ্যা্ঁট্ঁ ব্ঁট্ঁ আ্ঁপ্ঁনা্ঁদে্ঁর্ঁ সা্ঁথে্ঁ আ্ঁড্ডা্ঁ দি্ঁতে্ঁ 🖤✨`
-        }, threadID);
-    } 
-    else {
-        try {
-            let { threadName, participantIDs } = await api.getThreadInfo(threadID);
-            const threadData = global.data.threadData.get(parseInt(threadID)) || {};
+ 
+  if (event.logMessageData.addedParticipants.some(i => i.userFbId == api.getCurrentUserID())) {
+    await api.changeNickname(`[ ${botPrefix} ] • ${botName}`, threadID, api.getCurrentUserID());
 
-            var mentions = [], nameArray = [], memLength = [], i = 0;
-            
-            for (id in event.logMessageData.addedParticipants) {
-                const userName = event.logMessageData.addedParticipants[id].fullName;
-                nameArray.push(userName);
-                mentions.push({ tag: userName, id });
-                memLength.push(participantIDs.length - i++);
-            }
-            memLength.sort((a, b) => a - b);
+    api.sendMessage("চ্ঁলে্ঁ এ্ঁসে্ঁছি্ঁ —͟͟͞͞𝐒𝐇𝐔𝐕𝐎 𝐂𝐇𝐀𝐓 𝐁𝐎𝐓 এঁখঁনঁ তোঁমাঁদেঁরঁ সাঁথেঁ আঁড্ডাঁ দিঁবঁ..!", threadID, () => {
+      const randomGifPath = path.join(__dirname, "cache", "randomgif");
+      const allFiles = fs.readdirSync(randomGifPath).filter(file =>
+        [".mp4", ".jpg", ".png", ".jpeg", ".gif", ".mp3"].some(ext => file.endsWith(ext))
+      );
 
-            (typeof threadData.customJoin == "undefined") ? msg = "╭•┄┅═══❁🌺❁═══┅┄•╮\n   আসসালামু আলাইকুম-!!🖤\n╰•┄┅═══❁🌺❁═══┅┄•╯ \n\n✨🆆🅴🅻🅻 🅲🅾🅼🅴✨\n\n❥𝐍𝐄𝐖~\n\n[ {name} ]\n\nআপনাকে আমাদের\n\n{threadName} গ্রুপে স্বাগতম 🌺\n\nআপনি {soThanhVien} নং মেম্বার\n\n╭•┄┅═══❁🌺❁═══┅┄•╮\n☢️ 𝐂𝐘𝐁𝐄𝐑 𝐒𝐔𝐉𝐎𝐍-𝐁𝐎𝐒𝐒 ☢️\n╰•┄┅═══❁🌺❁═══┅┄•╯" : msg = threadData.customJoin;
-            
-            msg = msg
-                .replace(/\{name}/g, nameArray.join(', '))
-                .replace(/\{type}/g, (memLength.length > 1) ?  'Friends' : 'Friend')
-                .replace(/\{soThanhVien}/g, memLength.join(', '))
-                .replace(/\{threadName}/g, threadName);
+      const selected = allFiles.length > 0 
+        ? fs.createReadStream(path.join(randomGifPath, allFiles[Math.floor(Math.random() * allFiles.length)])) 
+        : null;
 
-            // === PNG Attach System ===
-            const imgPath = path.join(__dirname, "cache", "wlc.png"); 
-            let getImg = (await axios.get("https://i.imgur.com/0445Gzu.png", { responseType: "arraybuffer" })).data; 
-            fs.writeFileSync(imgPath, Buffer.from(getImg, "utf-8"));
+      const messageBody = `╭•┄┅═══❁🌺❁═══┅┄•╮
+     আ্ঁস্ঁসা্ঁলা্ঁমু্ঁ💚আ্ঁলা্ঁই্ঁকু্ঁম্ঁ
+╰•┄┅═══❁🌺❁═══┅┄•╯
 
-            return api.sendMessage({
-                body: msg,
-                mentions,
-                attachment: fs.createReadStream(imgPath)
-            }, threadID, () => fs.unlinkSync(imgPath)); // কাজ শেষে ফাইল ডিলিট করবে
+𝐓𝐡𝐚𝐧𝐤 𝐲𝐨𝐮 𝐬𝐨 𝐦𝐮𝐜𝐡 𝐟𝐨𝐫 𝐚𝐝𝐝𝐢𝐧𝐠 𝐦𝐞 𝐭𝐨 𝐲𝐨𝐮𝐫 𝐢-𝐠𝐫𝐨𝐮𝐩-🖤🤗
+𝐈 𝐰𝐢𝐥𝐥 𝐚𝐥𝐰𝐚𝐲𝐬 𝐬𝐞𝐫𝐯𝐞 𝐲𝐨𝐮 𝐢𝐧𝐚𝐡𝐚𝐥𝐥𝐚𝐡 🌺❤️
 
-        } catch (e) { return console.log(e) };
+𝐓𝐨 𝐯𝐢𝐞𝐰 𝐚𝐧𝐲 𝐜𝐨𝐦𝐦𝐚𝐧𝐝:
+${botPrefix}Help
+${botPrefix}Info
+${botPrefix}Admin
+
+★ যেকোনো অভিযোগ অথবা হেল্প এর জন্য এডমিন 𝐒𝐇𝐔𝐕𝐎 কে নক করতে পারেন ★
+➤𝐌𝐞𝐬𝐬𝐞𝐧𝐠𝐞𝐫: https://m.me/100025645342388
+➤𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩: https://wa.me/+8801947946745
+
+❖⋆═══════════════════════⋆❖
+     𝐁𝐎𝐓 𝐀𝐃𝐌𝐈𝐍 ➢ —͟͟͞͞𝐒𝐇𝐔𝐕𝐎`;
+
+      if (selected) {
+        api.sendMessage({ body: messageBody, attachment: selected }, threadID);
+      } else {
+        api.sendMessage(messageBody, threadID);
+      }
+    });
+
+    return;
+  }
+
+ 
+  try {
+    const { createReadStream, readdirSync } = global.nodemodule["fs-extra"];
+    let { threadName, participantIDs } = await api.getThreadInfo(threadID);
+    const threadData = global.data.threadData.get(parseInt(threadID)) || {};
+    let mentions = [], nameArray = [], memLength = [], i = 0;
+
+    for (let id in event.logMessageData.addedParticipants) {
+      const userName = event.logMessageData.addedParticipants[id].fullName;
+      nameArray.push(userName);
+      mentions.push({ tag: userName, id });
+      memLength.push(participantIDs.length - i++);
     }
-}
+    memLength.sort((a, b) => a - b);
+
+    let msg = (typeof threadData.customJoin === "undefined") ? `╭•┄┅═══❁🌺❁═══┅┄•╮
+     আ্ঁস্ঁসা্ঁলা্ঁমু্ঁ💚আ্ঁলা্ঁই্ঁকু্ঁম্ঁ
+╰•┄┅═══❁🌺❁═══┅┄•╯
+হাসি, মজা, ঠাট্টায় গড়ে উঠুক  
+চিরস্থায়ী বন্ধুত্বের বন্ধন।🥰
+ভালোবাসা ও সম্পর্ক থাকুক আজীবন।💝
+
+➤ আশা করি আপনি এখানে হাসি-মজা করে 
+আড্ডা দিতে ভালোবাসবেন।😍
+➤ সবার সাথে মিলেমিশে থাকবেন।😉
+➤ উস্কানিমূলক কথা বা খারাপ ব্যবহার করবেন না।🚫
+➤ গ্রুপ এডমিনের কথা শুনবেন ও রুলস মেনে চলবেন।✅
+
+›› প্রিয় {name},  
+আপনি এই গ্রুপের {soThanhVien} নম্বর মেম্বার!
+
+›› গ্রুপ: {threadName}
+
+💌 🌺 𝐖 𝐄 𝐋 𝐂 𝐎 𝐌 𝐄 🌺 💌
+╭─╼╾─╼🌸╾─╼╾───╮
+   —͟͟͞͞𝐒𝐇𝐔𝐕𝐎 𝐂𝐇𝐀𝐓 𝐁𝐎𝐓 🌺
+╰───╼╾─╼🌸╾─╼╾─╯
+
+❖⋆══════════════════════════⋆❖` : threadData.customJoin;
+
+    msg = msg
+      .replace(/\{name}/g, nameArray.join(', '))
+      .replace(/\{soThanhVien}/g, memLength.join(', '))
+      .replace(/\{threadName}/g, threadName);
+
+    const joinGifPath = path.join(__dirname, "cache", "joinGif");
+    const files = readdirSync(joinGifPath).filter(file =>
+      [".mp4", ".jpg", ".png", ".jpeg", ".gif", ".mp3"].some(ext => file.endsWith(ext))
+    );
+    const randomFile = files.length > 0 
+      ? createReadStream(path.join(joinGifPath, files[Math.floor(Math.random() * files.length)])) 
+      : null;
+
+    return api.sendMessage(
+      randomFile ? { body: msg, attachment: randomFile, mentions } : { body: msg, mentions },
+      threadID
+    );
+  } catch (e) {
+    console.error(e);
+  }
+};
+         
