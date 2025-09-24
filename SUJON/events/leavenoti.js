@@ -1,56 +1,44 @@
-const moment = require("moment-timezone");
-const fs = require("fs-extra");
-const path = require("path");
-
 module.exports.config = {
   name: "leave",
   eventType: ["log:unsubscribe"],
-  version: "2.0.1",
-  credits: "CYBER SUJON",
-  description: "Notify when a member leaves with media + short caption",
-};
-
-module.exports.onLoad = () => {
-  const dir = path.join(__dirname, "cache", "leaveGif", "randomgif");
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-};
-
-module.exports.run = async function ({ api, event, Users, Threads }) {
-  const leftID = event.logMessageData.leftParticipantFbId;
-  const botID = api.getCurrentUserID();
-  const threadID = event.threadID;
-
-  if (leftID == botID) return;
-
-  const threadData = global.data.threadData.get(threadID) || (await Threads.getData(threadID)).data;
-  const userName = global.data.userName.get(leftID) || await Users.getNameUser(leftID);
-  const isKicked = event.author != leftID;
-
-  const time = moment.tz("Asia/Dhaka").format("DD/MM/YYYY || HH:mm:ss");
-  const hour = parseInt(moment.tz("Asia/Dhaka").format("HH"));
-  const session = hour < 10 ? "𝙈𝙤𝙧𝙣𝙞𝙣𝙜" : hour <= 12 ? "𝘼𝙛𝙩𝙚𝙧𝙉𝙤𝙤𝙣" : hour <= 18 ? "𝙀𝙫𝙚𝙣𝙞𝙣𝙜" : "𝙉𝙞𝙜𝙝𝙩";
-  const status = isKicked ? "managed" : "leave";
-
-  // 🧾 ছোট ক্যাপশন এখানে
-  let msg = (typeof threadData.customLeave === "undefined") ? 
-  `{session} - {name} আমাদের সাথে আর নেই...💔\n⏰ {time}` : 
-  threadData.customLeave;
-
-  msg = msg
-    .replace(/\{name}/g, userName)
-    .replace(/\{type}/g, status)
-    .replace(/\{session}/g, session)
-    .replace(/\{time}/g, time);
-
-  const mediaDir = path.join(__dirname, "cache", "leaveGif", "randomgif");
-  const files = fs.readdirSync(mediaDir);
-  let attachment = null;
-
-  if (files.length > 0) {
-    const chosenFile = files[Math.floor(Math.random() * files.length)];
-    const filePath = path.join(mediaDir, chosenFile);
-    attachment = fs.createReadStream(filePath);
+  version: "1.0.0",
+  credits: "𝐂𝐘𝐁𝐄𝐑 ☢️_𖣘 -𝐁𝐎𝐓 ⚠️ 𝑻𝑬𝑨𝑴_ ☢️",
+  description: "Thông báo bot hoặc người rời khỏi nhóm",
+  dependencies: {
+    "fs-extra": "",
+    "path": ""
   }
-
-  return api.sendMessage({ body: msg, attachment }, threadID);
 };
+
+module.exports.run = async function({ api, event, Users, Threads }) {
+  if (event.logMessageData.leftParticipantFbId == api.getCurrentUserID()) return;
+
+  const { createReadStream, existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+  const { join } = global.nodemodule["path"];
+  const { threadID } = event;
+
+  const data = global.data.threadData.get(parseInt(threadID)) || (await Threads.getData(threadID)).data;
+  const name = global.data.userName.get(event.logMessageData.leftParticipantFbId) || await Users.getNameUser(event.logMessageData.leftParticipantFbId);
+
+  const type = (event.author == event.logMessageData.leftParticipantFbId)
+    ? " তোর সাহস কম না  গ্রুপের এডমিনের পারমিশন ছাড়া তুই লিভ  নিস😡😠🤬 \n✦─────꯭─⃝‌‌𝐒𝐇𝐔𝐕𝐎 𝐂𝐇𝐀𝐓 𝐁𝐎𝐓────✦"
+    : "তোমার এই গ্রুপে থাকার কোনো যোগ্যাতা নেই ছাগল😡\nতাই তোমাকে লাথি মেরে গ্রুপ থেকে বের করে দেওয়া হলো🤪 WELLCOME REMOVE🤧\n✦─────꯭─⃝‌‌𝐒𝐇𝐔𝐕𝐎 𝐂𝐇𝐀𝐓 𝐁𝐎𝐓────✦";
+
+  const path = join(__dirname, "Shahadat", "leaveGif");
+  const gifPath = join(path, `leave1.gif`);
+
+  if (!existsSync(path)) mkdirSync(path, { recursive: true });
+
+  let msg = (typeof data.customLeave == "undefined")
+    ? "ইস {name} {type} "
+    : data.customLeave;
+
+  msg = msg.replace(/\{name}/g, name).replace(/\{type}/g, type);
+
+  const formPush = existsSync(gifPath)
+    ? { body: msg, attachment: createReadStream(gifPath) }
+    : { body: msg };
+
+  return api.sendMessage(formPush, threadID);
+};
+  
