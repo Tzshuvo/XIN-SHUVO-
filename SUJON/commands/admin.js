@@ -27,7 +27,7 @@ module.exports.run = async function({ api, event }) {
 │ ❤️ 𝐑𝐞𝐥𝐚𝐭𝐢𝐨𝐧 : 𝐒𝐢𝐧𝐠𝐥𝐞
 │ 🎂 𝐀𝐠𝐞 : +
 │ 🕌 𝐑𝐞𝐥𝐢𝐠𝐢𝐨𝐧 : 𝐈𝐬𝐥𝐚𝐦
-│ 🎓 𝐄𝐝𝐮𝐜𝐚𝐭𝐢𝐨𝐧 : 
+│ 🎓 𝐄𝐝𝐮𝐜𝐚𝐭𝐢𝐨𝐧 : SSC (2027)
 │ 🏡 𝐀𝐝𝐝𝐫𝐞𝐬𝐬 : BOGURA 
 └───────────────⭓
 
@@ -37,7 +37,7 @@ module.exports.run = async function({ api, event }) {
 │ 📘 𝗙𝗮𝗰𝗲𝗯𝗼𝗼𝗸:
 │ https://fb.com/100025645342388
 │ 💬 𝗪𝗵𝗮𝘁𝘀𝗔𝗽𝗽:
-│ https://wa.me/01947946745
+│ https://wa.me/01947*******
 └───────────────⭓
 
 ┌───────────────⭓
@@ -49,7 +49,7 @@ module.exports.run = async function({ api, event }) {
  attachment: fs.createReadStream(__dirname + "/cache/owner.jpg")
  }, event.threadID, () => fs.unlinkSync(__dirname + "/cache/owner.jpg"));
 
- return request("https://i.imgur.com/OwrgGaR.jpeg")
+ return request("https://i.imgur.com/kC15zaS.jpeg")
  .pipe(fs.createWriteStream(__dirname + '/cache/owner.jpg'))
  .on('close', () => callback());
 };
